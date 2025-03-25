@@ -1,0 +1,3 @@
+/home/alientek/workspace/v4l2_displayer_test/build/CMakeFiles/rebuild_cache.dir
+/home/alientek/workspace/v4l2_displayer_test/build/CMakeFiles/edit_cache.dir
+/home/alientek/workspace/v4l2_displayer_test/build/CMakeFiles/v4l2_displayer_test.dir
