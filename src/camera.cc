@@ -237,9 +237,8 @@ void get_frame(struct v4l2_dev *dev, int skip_frame)
         }
 
         dev->out_data = (unsigned char *)dev->buffers[buf.index].start;
-        // src_buf = (char *)dev->buffers[buf.index].start;
+
         dev->timestamp = buf.timestamp.tv_sec * 1000000 + buf.timestamp.tv_usec;
-        //printf("image: sequence = %d, timestamp = %lu\n", buf.sequence, dev->timestamp);
 
         if (ioctl(dev->fd, VIDIOC_QBUF, &buf) == -1) {
             printf("VIDIOC_QBUF failed!\n");
@@ -301,4 +300,22 @@ void set_fps(struct v4l2_dev *dev, unsigned int fps)
     }
     printf("VIDIOC_SUBDEV_S_FRAME_INTERVAL [%u fps] OK\n", fps);
     return;
+}
+
+void camera_init(struct v4l2_dev *dev)
+{
+    open_device(dev);
+    get_capabilities(dev);
+    set_fmt(dev);
+    require_buf(dev);
+    alloc_buf(dev);
+    queue_buf(dev);
+    set_fps(dev, 0);
+    stream_on(dev);
+}
+
+void camera_deinit(struct v4l2_dev *dev)
+{
+    stream_off(dev);
+    close_device(dev);
 }

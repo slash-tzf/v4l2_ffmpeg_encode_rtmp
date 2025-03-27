@@ -71,6 +71,5 @@ CMakeFiles/v4l2_displayer_test.dir/src/image_converter.cc.o: ../src/image_conver
 
 CMakeFiles/v4l2_displayer_test.dir/src/main.cc.o: ../include/buffer_manager.h
 CMakeFiles/v4l2_displayer_test.dir/src/main.cc.o: ../include/camera.h
-CMakeFiles/v4l2_displayer_test.dir/src/main.cc.o: ../include/framebuffer.h
 CMakeFiles/v4l2_displayer_test.dir/src/main.cc.o: ../src/main.cc
 

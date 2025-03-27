@@ -83,13 +83,13 @@ int convert_nv12_to_bgra_dma_buf(char *src, My_drm_context_t *drm, int width,
   memset(&src_img, 0, sizeof(src_img));
   memset(&dst_img, 0, sizeof(dst_img));
 
-  src_width = align_to_16(width);
+  src_width = align_to_16(width); //16对齐很重要
   src_height = height;
-  src_format = RK_FORMAT_YCbCr_420_SP;
+  src_format = RK_FORMAT_YCbCr_420_SP; // NV12格式
 
-  dst_width = align_to_16(drm->width);
+  dst_width = align_to_16(drm->width); //16对齐很重要
   dst_height = drm->height;
-  dst_format = RK_FORMAT_BGRA_8888;
+  dst_format = RK_FORMAT_BGRA_8888; // BGRA格式
 
   src_buf_size = src_width * src_height * 3 / 2;
   dst_buf_size = dst_width * dst_height * 4;
@@ -119,8 +119,6 @@ int convert_nv12_to_bgra_dma_buf(char *src, My_drm_context_t *drm, int width,
   ret = imrotate(src_img, dst_img, IM_HAL_TRANSFORM_ROT_90);
   if (ret != IM_STATUS_SUCCESS) {
     printf("imrotate running failed, %s\n", imStrError((IM_STATUS)ret));
-  } else {
-    //printf("imrotate with DMA-BUF success!\n");
   }
 
 release_buffer:

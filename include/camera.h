@@ -43,5 +43,6 @@ void close_device(struct v4l2_dev *dev);
 void exit_failure(struct v4l2_dev *dev);
 void set_fps(struct v4l2_dev *dev, unsigned int fps);
 void save_picture(const char *filename, unsigned char *file_data, unsigned int len, int is_overwrite);
-
+void camera_init(struct v4l2_dev *dev);
+void camera_deinit(struct v4l2_dev *dev);
 #endif /* CAMERA_H */

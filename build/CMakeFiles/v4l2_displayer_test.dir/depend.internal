@@ -72,5 +72,4 @@ CMakeFiles/v4l2_displayer_test.dir/src/image_converter.cc.o
 CMakeFiles/v4l2_displayer_test.dir/src/main.cc.o
  ../include/buffer_manager.h
  ../include/camera.h
- ../include/framebuffer.h
  /home/alientek/workspace/v4l2_displayer_test/src/main.cc
