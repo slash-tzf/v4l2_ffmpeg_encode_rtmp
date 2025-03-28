@@ -5,7 +5,6 @@
 #include <semaphore.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include <alsa/asoundlib.h>
 // Forward declaration
 struct v4l2_dev;
 
@@ -41,22 +40,15 @@ typedef struct {
     int stride;
     size_t nv12_size;
     size_t bgra_size;
-    char* bgra_buffer;
+    size_t RGB_size;
+    char* RGB_buffer;
     sem_t encode_sem;
     int encode_index;
     char *encode_buffer;
     
-    // Audio buffer management
-    audio_buffer_t *audio_buffers;
-    int audio_buffer_count;
-    int audio_capture_index;
-    int audio_encode_index;
-    sem_t audio_empty_sem;
-    sem_t audio_filled_sem;
-    pthread_mutex_t audio_mutex;
 } buffer_manager_t;
 
-// Define thread parameters structure
+
 typedef struct {
     struct v4l2_dev *camdev;
     buffer_manager_t *buffer_mgr;

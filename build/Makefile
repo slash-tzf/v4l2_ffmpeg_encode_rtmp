@@ -285,6 +285,60 @@ src/main.cc.s:
 	$(MAKE) -f CMakeFiles/v4l2_displayer_test.dir/build.make CMakeFiles/v4l2_displayer_test.dir/src/main.cc.s
 .PHONY : src/main.cc.s
 
+src/postprocess.o: src/postprocess.cc.o
+
+.PHONY : src/postprocess.o
+
+# target to build an object file
+src/postprocess.cc.o:
+	$(MAKE) -f CMakeFiles/v4l2_displayer_test.dir/build.make CMakeFiles/v4l2_displayer_test.dir/src/postprocess.cc.o
+.PHONY : src/postprocess.cc.o
+
+src/postprocess.i: src/postprocess.cc.i
+
+.PHONY : src/postprocess.i
+
+# target to preprocess a source file
+src/postprocess.cc.i:
+	$(MAKE) -f CMakeFiles/v4l2_displayer_test.dir/build.make CMakeFiles/v4l2_displayer_test.dir/src/postprocess.cc.i
+.PHONY : src/postprocess.cc.i
+
+src/postprocess.s: src/postprocess.cc.s
+
+.PHONY : src/postprocess.s
+
+# target to generate assembly for a file
+src/postprocess.cc.s:
+	$(MAKE) -f CMakeFiles/v4l2_displayer_test.dir/build.make CMakeFiles/v4l2_displayer_test.dir/src/postprocess.cc.s
+.PHONY : src/postprocess.cc.s
+
+src/rknn_yolov5.o: src/rknn_yolov5.cc.o
+
+.PHONY : src/rknn_yolov5.o
+
+# target to build an object file
+src/rknn_yolov5.cc.o:
+	$(MAKE) -f CMakeFiles/v4l2_displayer_test.dir/build.make CMakeFiles/v4l2_displayer_test.dir/src/rknn_yolov5.cc.o
+.PHONY : src/rknn_yolov5.cc.o
+
+src/rknn_yolov5.i: src/rknn_yolov5.cc.i
+
+.PHONY : src/rknn_yolov5.i
+
+# target to preprocess a source file
+src/rknn_yolov5.cc.i:
+	$(MAKE) -f CMakeFiles/v4l2_displayer_test.dir/build.make CMakeFiles/v4l2_displayer_test.dir/src/rknn_yolov5.cc.i
+.PHONY : src/rknn_yolov5.cc.i
+
+src/rknn_yolov5.s: src/rknn_yolov5.cc.s
+
+.PHONY : src/rknn_yolov5.s
+
+# target to generate assembly for a file
+src/rknn_yolov5.cc.s:
+	$(MAKE) -f CMakeFiles/v4l2_displayer_test.dir/build.make CMakeFiles/v4l2_displayer_test.dir/src/rknn_yolov5.cc.s
+.PHONY : src/rknn_yolov5.cc.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -312,6 +366,12 @@ help:
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
+	@echo "... src/postprocess.o"
+	@echo "... src/postprocess.i"
+	@echo "... src/postprocess.s"
+	@echo "... src/rknn_yolov5.o"
+	@echo "... src/rknn_yolov5.i"
+	@echo "... src/rknn_yolov5.s"
 .PHONY : help
 
 

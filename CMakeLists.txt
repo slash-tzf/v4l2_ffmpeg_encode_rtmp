@@ -18,8 +18,16 @@ set(SYSROOT /home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk35
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 include_directories(${SYSROOT}/drm)
+include_directories(${SYSROOT}/rga)
+include_directories(${SYSROOT}/rknn)
+include_directories(${SYSROOT}/opencv4)
 
-aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/src SRC_LIST)
+set(RKNN_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/src/rknn_inference.cc")
+
+file(GLOB SRC_LIST 
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc
+)
+
 
 
 set(FFMPEG_INCLUDE_DIRS 
@@ -39,4 +47,4 @@ set(FFMPEG_LIBRARIES
 add_executable(v4l2_displayer_test ${SRC_LIST})
 
 
-target_link_libraries(v4l2_displayer_test rga ${FFMPEG_LIBRARIES} drm )
+target_link_libraries(v4l2_displayer_test rga ${FFMPEG_LIBRARIES} drm rknn_api opencv_core opencv_imgproc opencv_highgui)

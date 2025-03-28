@@ -9,6 +9,12 @@
 #include "camera.h"
 #include <rga/im2d.h>
 #include "drm_disp.h"
+#include "rknn_yolov5.h"
+#include "postprocess.h"
+#include "opencv2/core/core.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/highgui/highgui.hpp"
+
 extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
@@ -42,8 +48,8 @@ buffer_manager_t* init_buffer_manager(int buffer_count, int width, int height) {
     size_t audio_buffer_size = 4096;  // Slightly larger than 20ms for safety
     // 计算NV12和BGRA格式所需的对齐内存大小
     size_t nv12_size = align_to_16( height) * width * 3 / 2; // NV12格式
-    size_t bgra_size = align_to_16( height) * width * 4; // BGRA格式
-
+    size_t bgra_size = align_to_16( height) * width * 4; // bgra格式
+    size_t RGB_size = align_to_16( height) * width * 3; // RGB格式
     for (int i = 0; i < buffer_count; i++) {
         // 分配足够大的内存以处理BGRA格式（更大的格式）
         mgr->buffers[i].data = (char*)malloc(bgra_size);
@@ -70,8 +76,13 @@ buffer_manager_t* init_buffer_manager(int buffer_count, int width, int height) {
     mgr->height = height;
     mgr->nv12_size = nv12_size;
     mgr->encode_buffer = (char*)malloc(nv12_size);
+    mgr->RGB_buffer = (char*)malloc(RGB_size);
+
     mgr->bgra_size = bgra_size;
+    mgr->RGB_size = RGB_size;
     mgr->stride = width * 4;
+
+    // Initialize synchronization primitives
     sem_init(&mgr->empty_sem, 0, buffer_count);
     sem_init(&mgr->filled_sem, 0, 0);
     sem_init(&mgr->encode_sem, 0, 0);
@@ -83,16 +94,31 @@ buffer_manager_t* init_buffer_manager(int buffer_count, int width, int height) {
 void destroy_buffer_manager(buffer_manager_t *mgr) {
     if (!mgr) return;
 
-    for (int i = 0; i < mgr->buffer_count; i++) {
-        free(mgr->buffers[i].data);
+    // Free individual frame buffers
+    if (mgr->buffers) {
+        for (int i = 0; i < mgr->buffer_count; i++) {
+            if (mgr->buffers[i].data) {
+                free(mgr->buffers[i].data);
+            }
+        }
+        free(mgr->buffers);
     }
-    free(mgr->buffers);
-    free(mgr->encode_buffer);
+
+    // Free other buffers
+    if (mgr->encode_buffer) {
+        free(mgr->encode_buffer);
+    }
+    if (mgr->RGB_buffer) {
+        free(mgr->RGB_buffer);
+    }
+
+    // Destroy synchronization primitives
     sem_destroy(&mgr->encode_sem);
     sem_destroy(&mgr->empty_sem);
     sem_destroy(&mgr->filled_sem);
     pthread_mutex_destroy(&mgr->mutex);
 
+    // Finally free the manager itself
     free(mgr);
 }
 
@@ -145,7 +171,15 @@ void* process_thread_func(void *arg) {
     int ret;
     printf("Process thread started\n");
     
-    printf("Display thread started using DRM for landscape mode\n");
+    // Initialize RKNN model
+    RknnYolov5 rknn;
+    ret = rknn.Init("./model/yolov5s-640-640.rknn");
+    if (ret < 0) {
+        fprintf(stderr, "Failed to initialize RKNN model\n");
+        return NULL;
+    }
+    
+    printf("Display thread started using DRM for landscape mode with YOLO inference\n");
     
     // Initialize DRM
     My_drm_context_t *drm = init_drm(width, height);
@@ -153,10 +187,17 @@ void* process_thread_func(void *arg) {
         fprintf(stderr, "Failed to initialize DRM, exiting display thread\n");
         return NULL;
     }
+
     
     // Print buffer dimensions
     printf("Input buffer: %dx%d, Display buffer: %dx%d\n", 
            width, height, drm->width, drm->height);
+
+    // Variables for FPS calculation
+    int frame_count = 0;
+    float fps = 0.0f;
+    struct timeval start_time, current_time;
+    gettimeofday(&start_time, NULL);
 
     while (mgr->running) {
         // Wait for filled buffer
@@ -169,18 +210,73 @@ void* process_thread_func(void *arg) {
         mgr->process_index = (mgr->process_index + 1) % mgr->buffer_count;
         pthread_mutex_unlock(&mgr->mutex);
         
-        // Process frame data - Convert NV12 to BGRA
-        ret = convert_nv12_to_bgra_dma_buf(mgr->buffers[idx].data, drm ,width, height);
+        // Run inference first
+        detect_result_group_t detect_result = {0};
+        ret = rknn.Inference((unsigned char*)mgr->buffers[idx].data, width, height, &detect_result);
+        if (ret < 0) {
+            printf("Inference failed!\n");
+        } else {
+            printf("Detect Result Count: %d\n", detect_result.count);
+        }
 
+        ret = convert_nv12_to_RGB(mgr->buffers[idx].data, mgr->RGB_buffer, width, height);
         if (ret != IM_STATUS_SUCCESS) {
-            printf("Error converting NV12 to BGRA: %s\n", imStrError((IM_STATUS)ret));
+            printf("Error converting NV12 to RGB: %s\n", imStrError((IM_STATUS)ret));
+            continue;
+        }
+
+        // Calculate FPS
+        frame_count++;
+        gettimeofday(&current_time, NULL);
+        float time_elapsed = ((current_time.tv_sec - start_time.tv_sec) * 1000000.0f +
+                            (current_time.tv_usec - start_time.tv_usec)) / 1000000.0f;
+        if (time_elapsed >= 1.0f) {
+            fps = frame_count / time_elapsed;
+            frame_count = 0;
+            start_time = current_time;
+        }
+
+        // Create OpenCV Mat for drawing
+        cv::Mat rgb_frame(height, width, CV_8UC3, mgr->RGB_buffer);
+
+        // Draw FPS
+        char fps_text[32];
+        snprintf(fps_text, sizeof(fps_text), "FPS: %.1f", fps);
+        cv::putText(rgb_frame, fps_text, cv::Point(30, 50), cv::FONT_HERSHEY_SIMPLEX, 
+                    1.5, cv::Scalar(0, 255, 0), 2);
+
+        // Draw detection boxes
+        for (int i = 0; i < detect_result.count; i++) {
+            detect_result_t* det = &(detect_result.results[i]);
+            int x1 = det->box.left;
+            int y1 = det->box.top;
+            int x2 = det->box.right;
+            int y2 = det->box.bottom;
+
+            // Draw rectangle
+            cv::rectangle(rgb_frame, cv::Point(x1, y1), cv::Point(x2, y2), cv::Scalar(255, 0, 0), 3);
+
+            // Format text with class name and confidence
+            char text[128];
+            snprintf(text, sizeof(text), "%s %.2f", det->name, det->prop);
+
+            // Draw text
+            cv::putText(rgb_frame, text, cv::Point(x1, y1 - 12), cv::FONT_HERSHEY_SIMPLEX, 1, cv::Scalar(255, 0, 0));
+            
+            printf("%s @ (%d, %d, %d, %d) %.3f\n", det->name, x1, y1, x2, y2, det->prop);
+        }
+
+        // Convert RGB to BGRA
+        ret = convert_RGB_to_BGRA_dma_buf(mgr->RGB_buffer, drm, width, height);
+        if (ret != IM_STATUS_SUCCESS) {
+            printf("Error converting RGB to BGRA: %s\n", imStrError((IM_STATUS)ret));
             continue;
         }
 
         if (drmModePageFlip(drm->fd, drm->crtc_id, drm->fb_id, 
             DRM_MODE_PAGE_FLIP_EVENT, NULL) < 0) {
             perror("Failed to page flip");
-            } else {
+        } else {
             // Wait for page flip to complete
             drmEventContext evctx = {0};
             evctx.version = DRM_EVENT_CONTEXT_VERSION;
@@ -194,13 +290,32 @@ void* process_thread_func(void *arg) {
 
             select(drm->fd + 1, &fds, NULL, NULL, &timeout);
             if (FD_ISSET(drm->fd, &fds))
-            drmHandleEvent(drm->fd, &evctx);
+                drmHandleEvent(drm->fd, &evctx);
         }
 
         sem_post(&mgr->empty_sem);
     }
 
-    destroy_drm(drm);
+    // Cleanup DRM
+    if (drm) {
+        // Wait for any pending operations to complete
+        drmEventContext evctx = {0};
+        evctx.version = DRM_EVENT_CONTEXT_VERSION;
+        evctx.page_flip_handler = NULL;
+        
+        fd_set fds;
+        FD_ZERO(&fds);
+        FD_SET(drm->fd, &fds);
+        
+        struct timeval timeout = {0, 100000}; // 100ms timeout
+        select(drm->fd + 1, &fds, NULL, NULL, &timeout);
+        if (FD_ISSET(drm->fd, &fds)) {
+            drmHandleEvent(drm->fd, &evctx);
+        }
+        
+        destroy_drm(drm);
+        drm = NULL;
+    }
 
     printf("Process thread exiting\n");
     return NULL;
@@ -248,8 +363,8 @@ void* encode_thread_func(void *arg) {
     // 设置编码参数
     codec_ctx->width = width;
     codec_ctx->height = height;
-    codec_ctx->time_base = (AVRational){1, 30}; // 30fps
-    codec_ctx->framerate = (AVRational){30, 1};
+    codec_ctx->time_base = (AVRational){1, 10}; // 30fps
+    codec_ctx->framerate = (AVRational){10, 1};
     codec_ctx->pix_fmt = AV_PIX_FMT_YUV420P; // 使用YUV420P格式编码
     codec_ctx->bit_rate = 5000000; // 5 Mbps，可以根据网络情况调整
     
@@ -349,7 +464,7 @@ void* encode_thread_func(void *arg) {
     
     int frame_count = 0;
     int64_t pts = 0;
-    
+    struct timeval start_time, end_time;
     // 主循环: 获取帧，转换，编码，推流
     while (mgr->running) {
         // 等待新帧可用
@@ -370,13 +485,15 @@ void* encode_thread_func(void *arg) {
         };
         int src_linesize[2] = { width, width };  // NV12格式的跨步
         
-        // 转换NV12到YUV420P格式
-        //计时转换花了多久 开始计时
+        
+        gettimeofday(&start_time, NULL);
 
-        //start_time = get_current_time();
         sws_scale(sws_ctx, src_data, src_linesize, 0, height,
                   frame->data, frame->linesize);
         
+        gettimeofday(&end_time, NULL);
+        float conversion_time = ((end_time.tv_sec - start_time.tv_sec) * 1000000 + (end_time.tv_usec - start_time.tv_usec)) / 1000.0f;
+        printf("Conversion time: %.2f ms\n", conversion_time);
         // 设置帧的PTS
         frame->pts = pts++;
         
@@ -444,7 +561,7 @@ int main_multithreaded(struct v4l2_dev *camdev, int width, int height) {
         .camdev = camdev, 
         .buffer_mgr = buffer_mgr,
         .width = width,
-        .height = height
+        .height = height,
     };
     
     // 创建线程
@@ -454,24 +571,19 @@ int main_multithreaded(struct v4l2_dev *camdev, int width, int height) {
     pthread_create(&encode_thread, NULL, encode_thread_func, &params);
     
     // 等待用户输入来退出
-    printf("Press Enter to exit...\n");
+    printf("Press Enter to stop...\n");
     getchar();
-    
-    // 通知线程退出
+
+    // 停止所有线程
     buffer_mgr->running = 0;
-    
-    // 发送信号以防止线程阻塞在信号量上
-    sem_post(&buffer_mgr->empty_sem);
     sem_post(&buffer_mgr->filled_sem);
     sem_post(&buffer_mgr->encode_sem);
-    
-    // 等待线程退出
     pthread_join(video_capture_thread, NULL);
     pthread_join(process_thread, NULL);
     pthread_join(encode_thread, NULL);
-    
-    // 清理资源
+    // 清理缓冲区管理器
     destroy_buffer_manager(buffer_mgr);
-    
+
+    printf("Main thread exiting\n");
     return 0;
 }

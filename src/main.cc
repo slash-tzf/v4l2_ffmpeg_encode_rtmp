@@ -16,20 +16,21 @@ struct v4l2_dev im335 = {
     .memory_type = V4L2_MEMORY_MMAP,
     .buffers = NULL,
     .timestamp = 0,
-    .data_len = 0,
+    .data_len = 1920 * 1080 * 3 / 2,
     .out_data = NULL,
 };
 
 int main()
 {
     struct v4l2_dev *camdev = &im335;
+    // 初始化摄像头
+    camera_init(camdev);
 
-    camera_init(camdev); // 初始化摄像头
+    // 启动多线程
+    main_multithreaded(camdev, camdev->width, camdev->height);
 
-    main_multithreaded(camdev, camdev->width, camdev->height); // 启动多线程
-
-    camera_deinit(camdev); // 关闭摄像头
+    // 清理资源
+    camera_deinit(camdev);
 
     return 0;
-
 }

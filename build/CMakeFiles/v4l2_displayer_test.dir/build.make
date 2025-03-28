@@ -135,6 +135,32 @@ CMakeFiles/v4l2_displayer_test.dir/src/main.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/v4l2_displayer_test.dir/src/main.cc.s"
 	/opt/atk-dlrk3568-5_10_sdk-toolchain/bin/aarch64-buildroot-linux-gnu-g++ --sysroot=/home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/alientek/workspace/v4l2_displayer_test/src/main.cc -o CMakeFiles/v4l2_displayer_test.dir/src/main.cc.s
 
+CMakeFiles/v4l2_displayer_test.dir/src/postprocess.cc.o: CMakeFiles/v4l2_displayer_test.dir/flags.make
+CMakeFiles/v4l2_displayer_test.dir/src/postprocess.cc.o: ../src/postprocess.cc
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/alientek/workspace/v4l2_displayer_test/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/v4l2_displayer_test.dir/src/postprocess.cc.o"
+	/opt/atk-dlrk3568-5_10_sdk-toolchain/bin/aarch64-buildroot-linux-gnu-g++ --sysroot=/home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/v4l2_displayer_test.dir/src/postprocess.cc.o -c /home/alientek/workspace/v4l2_displayer_test/src/postprocess.cc
+
+CMakeFiles/v4l2_displayer_test.dir/src/postprocess.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/v4l2_displayer_test.dir/src/postprocess.cc.i"
+	/opt/atk-dlrk3568-5_10_sdk-toolchain/bin/aarch64-buildroot-linux-gnu-g++ --sysroot=/home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/alientek/workspace/v4l2_displayer_test/src/postprocess.cc > CMakeFiles/v4l2_displayer_test.dir/src/postprocess.cc.i
+
+CMakeFiles/v4l2_displayer_test.dir/src/postprocess.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/v4l2_displayer_test.dir/src/postprocess.cc.s"
+	/opt/atk-dlrk3568-5_10_sdk-toolchain/bin/aarch64-buildroot-linux-gnu-g++ --sysroot=/home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/alientek/workspace/v4l2_displayer_test/src/postprocess.cc -o CMakeFiles/v4l2_displayer_test.dir/src/postprocess.cc.s
+
+CMakeFiles/v4l2_displayer_test.dir/src/rknn_yolov5.cc.o: CMakeFiles/v4l2_displayer_test.dir/flags.make
+CMakeFiles/v4l2_displayer_test.dir/src/rknn_yolov5.cc.o: ../src/rknn_yolov5.cc
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/alientek/workspace/v4l2_displayer_test/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/v4l2_displayer_test.dir/src/rknn_yolov5.cc.o"
+	/opt/atk-dlrk3568-5_10_sdk-toolchain/bin/aarch64-buildroot-linux-gnu-g++ --sysroot=/home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/v4l2_displayer_test.dir/src/rknn_yolov5.cc.o -c /home/alientek/workspace/v4l2_displayer_test/src/rknn_yolov5.cc
+
+CMakeFiles/v4l2_displayer_test.dir/src/rknn_yolov5.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/v4l2_displayer_test.dir/src/rknn_yolov5.cc.i"
+	/opt/atk-dlrk3568-5_10_sdk-toolchain/bin/aarch64-buildroot-linux-gnu-g++ --sysroot=/home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/alientek/workspace/v4l2_displayer_test/src/rknn_yolov5.cc > CMakeFiles/v4l2_displayer_test.dir/src/rknn_yolov5.cc.i
+
+CMakeFiles/v4l2_displayer_test.dir/src/rknn_yolov5.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/v4l2_displayer_test.dir/src/rknn_yolov5.cc.s"
+	/opt/atk-dlrk3568-5_10_sdk-toolchain/bin/aarch64-buildroot-linux-gnu-g++ --sysroot=/home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/alientek/workspace/v4l2_displayer_test/src/rknn_yolov5.cc -o CMakeFiles/v4l2_displayer_test.dir/src/rknn_yolov5.cc.s
+
 # Object files for target v4l2_displayer_test
 v4l2_displayer_test_OBJECTS = \
 "CMakeFiles/v4l2_displayer_test.dir/src/buffer_manager.cc.o" \
@@ -142,7 +168,9 @@ v4l2_displayer_test_OBJECTS = \
 "CMakeFiles/v4l2_displayer_test.dir/src/drm_disp.cc.o" \
 "CMakeFiles/v4l2_displayer_test.dir/src/framebuffer.cc.o" \
 "CMakeFiles/v4l2_displayer_test.dir/src/image_converter.cc.o" \
-"CMakeFiles/v4l2_displayer_test.dir/src/main.cc.o"
+"CMakeFiles/v4l2_displayer_test.dir/src/main.cc.o" \
+"CMakeFiles/v4l2_displayer_test.dir/src/postprocess.cc.o" \
+"CMakeFiles/v4l2_displayer_test.dir/src/rknn_yolov5.cc.o"
 
 # External object files for target v4l2_displayer_test
 v4l2_displayer_test_EXTERNAL_OBJECTS =
@@ -153,6 +181,8 @@ v4l2_displayer_test_EXTERNAL_OBJECTS =
 ../bin/v4l2_displayer_test: CMakeFiles/v4l2_displayer_test.dir/src/framebuffer.cc.o
 ../bin/v4l2_displayer_test: CMakeFiles/v4l2_displayer_test.dir/src/image_converter.cc.o
 ../bin/v4l2_displayer_test: CMakeFiles/v4l2_displayer_test.dir/src/main.cc.o
+../bin/v4l2_displayer_test: CMakeFiles/v4l2_displayer_test.dir/src/postprocess.cc.o
+../bin/v4l2_displayer_test: CMakeFiles/v4l2_displayer_test.dir/src/rknn_yolov5.cc.o
 ../bin/v4l2_displayer_test: CMakeFiles/v4l2_displayer_test.dir/build.make
 ../bin/v4l2_displayer_test: /home/alientek/ffmpeg_armbuild/lib/libavcodec.so
 ../bin/v4l2_displayer_test: /home/alientek/ffmpeg_armbuild/lib/libavformat.so
@@ -160,7 +190,7 @@ v4l2_displayer_test_EXTERNAL_OBJECTS =
 ../bin/v4l2_displayer_test: /home/alientek/ffmpeg_armbuild/lib/libswscale.so
 ../bin/v4l2_displayer_test: /home/alientek/ffmpeg_armbuild/lib/libswresample.so
 ../bin/v4l2_displayer_test: CMakeFiles/v4l2_displayer_test.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/alientek/workspace/v4l2_displayer_test/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable ../bin/v4l2_displayer_test"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/alientek/workspace/v4l2_displayer_test/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Linking CXX executable ../bin/v4l2_displayer_test"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/v4l2_displayer_test.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
