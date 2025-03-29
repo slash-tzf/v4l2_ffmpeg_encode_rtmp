@@ -198,7 +198,7 @@ void* Inference_thread_func(void *arg) {
         if (ret < 0) {
             printf("Inference failed!\n");
         } else {
-            printf("Detect Result Count: %d\n", mgr->detect_result.count);
+            //printf("Detect Result Count: %d\n", mgr->detect_result.count);
         }
         sem_post(&mgr->display_sem);
     }
@@ -257,6 +257,7 @@ void* display_thread_func(void *arg){
             fps = frame_count / time_elapsed;
             frame_count = 0;
             start_time = current_time;
+            printf("FPS = %.1f \n",fps);
         }
     
         // Create OpenCV Mat for drawing
@@ -386,10 +387,10 @@ void* encode_thread_func(void *arg) {
     // 设置编码参数
     codec_ctx->width = width;
     codec_ctx->height = height;
-    codec_ctx->time_base = (AVRational){1, 12}; // 30fps
-    codec_ctx->framerate = (AVRational){12, 1};
+    codec_ctx->time_base = (AVRational){1, 15}; // 30fps
+    codec_ctx->framerate = (AVRational){15, 1};
     codec_ctx->pix_fmt = AV_PIX_FMT_YUV420P; // 使用YUV420P格式编码
-    codec_ctx->bit_rate = 5000000; // 5 Mbps，可以根据网络情况调整
+    codec_ctx->bit_rate = 10000000; // 5 Mbps，可以根据网络情况调整
     
     // 对于RTMP流，设置一些特定的参数
     codec_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER; // RTMP需要全局头
@@ -510,16 +511,10 @@ void* encode_thread_func(void *arg) {
             (uint8_t*)mgr->encode_buffer + (width * height)       // UV平面
         };
         int src_linesize[2] = { width, width };  // NV12格式的跨步
-        
-        
-        gettimeofday(&start_time, NULL);
 
         sws_scale(sws_ctx, src_data, src_linesize, 0, height,
                   frame->data, frame->linesize);
         
-        gettimeofday(&end_time, NULL);
-        float conversion_time = ((end_time.tv_sec - start_time.tv_sec) * 1000000 + (end_time.tv_usec - start_time.tv_usec)) / 1000.0f;
-        printf("Conversion time: %.2f ms\n", conversion_time);
         // 设置帧的PTS
         frame->pts = pts++;
         

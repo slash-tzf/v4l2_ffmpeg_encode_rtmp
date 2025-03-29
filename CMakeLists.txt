@@ -20,7 +20,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 include_directories(${SYSROOT}/drm)
 include_directories(${SYSROOT}/rga)
 include_directories(${SYSROOT}/rknn)
-include_directories(${SYSROOT}/opencv4)
+include_directories(${SYSROOT}/opencv4) 
 
 set(RKNN_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/src/rknn_inference.cc")
 
