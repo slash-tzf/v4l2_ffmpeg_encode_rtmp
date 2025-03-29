@@ -9,6 +9,8 @@
 #include "camera.h"
 #include <rga/im2d.h>
 #include "drm_disp.h"
+#include "libavutil/pixfmt.h"
+#include "rga.h"
 #include "rknn_yolov5.h"
 #include "postprocess.h"
 #include "opencv2/core/core.hpp"
@@ -44,8 +46,6 @@ buffer_manager_t* init_buffer_manager(int buffer_count, int width, int height) {
         free(mgr);
         return NULL;
     }
-    size_t audio_buffer_count = 1;
-    size_t audio_buffer_size = 4096;  // Slightly larger than 20ms for safety
     // 计算NV12和BGRA格式所需的对齐内存大小
     size_t nv12_size = align_to_16( height) * width * 3 / 2; // NV12格式
     size_t bgra_size = align_to_16( height) * width * 4; // bgra格式
@@ -71,6 +71,8 @@ buffer_manager_t* init_buffer_manager(int buffer_count, int width, int height) {
     mgr->buffer_count = buffer_count;
     mgr->capture_index = 0;
     mgr->process_index = 0;
+    mgr->display_index = 0;
+    mgr->encode_index = 0;
     mgr->running = 1;
     mgr->width = width;
     mgr->height = height;
@@ -81,11 +83,13 @@ buffer_manager_t* init_buffer_manager(int buffer_count, int width, int height) {
     mgr->bgra_size = bgra_size;
     mgr->RGB_size = RGB_size;
     mgr->stride = width * 4;
+    mgr->detect_result = {0};
 
     // Initialize synchronization primitives
     sem_init(&mgr->empty_sem, 0, buffer_count);
     sem_init(&mgr->filled_sem, 0, 0);
     sem_init(&mgr->encode_sem, 0, 0);
+    sem_init(&mgr->display_sem, 0, 0);
     pthread_mutex_init(&mgr->mutex, NULL);
     return mgr;
 }
@@ -116,6 +120,7 @@ void destroy_buffer_manager(buffer_manager_t *mgr) {
     sem_destroy(&mgr->encode_sem);
     sem_destroy(&mgr->empty_sem);
     sem_destroy(&mgr->filled_sem);
+    sem_destroy(&mgr->display_sem);
     pthread_mutex_destroy(&mgr->mutex);
 
     // Finally free the manager itself
@@ -150,10 +155,9 @@ void* video_capture_thread_func(void *arg) {
         mgr->buffers[idx].size = camdev->data_len;  // 实际大小（NV12）
         mgr->buffers[idx].frame_index = idx;
         mgr->buffers[idx].timestamp = camdev->timestamp;
-        memcpy(mgr->encode_buffer, camdev->out_data, camdev->data_len);
-        // Signal process thread
+
         sem_post(&mgr->filled_sem);
-        sem_post(&mgr->encode_sem);
+        
     }
     
     printf("Capture thread exiting\n");
@@ -163,7 +167,7 @@ void* video_capture_thread_func(void *arg) {
 
 
 // Process thread function
-void* process_thread_func(void *arg) {
+void* Inference_thread_func(void *arg) {
     thread_params_t *params = (thread_params_t*)arg;
     buffer_manager_t *mgr = params->buffer_mgr;
     int width = mgr->width;
@@ -179,26 +183,6 @@ void* process_thread_func(void *arg) {
         return NULL;
     }
     
-    printf("Display thread started using DRM for landscape mode with YOLO inference\n");
-    
-    // Initialize DRM
-    My_drm_context_t *drm = init_drm(width, height);
-    if (!drm) {
-        fprintf(stderr, "Failed to initialize DRM, exiting display thread\n");
-        return NULL;
-    }
-
-    
-    // Print buffer dimensions
-    printf("Input buffer: %dx%d, Display buffer: %dx%d\n", 
-           width, height, drm->width, drm->height);
-
-    // Variables for FPS calculation
-    int frame_count = 0;
-    float fps = 0.0f;
-    struct timeval start_time, current_time;
-    gettimeofday(&start_time, NULL);
-
     while (mgr->running) {
         // Wait for filled buffer
         sem_wait(&mgr->filled_sem);
@@ -210,21 +194,60 @@ void* process_thread_func(void *arg) {
         mgr->process_index = (mgr->process_index + 1) % mgr->buffer_count;
         pthread_mutex_unlock(&mgr->mutex);
         
-        // Run inference first
-        detect_result_group_t detect_result = {0};
-        ret = rknn.Inference((unsigned char*)mgr->buffers[idx].data, width, height, &detect_result);
+        ret = rknn.Inference((unsigned char*)mgr->buffers[idx].data, width, height, &(mgr->detect_result));
         if (ret < 0) {
             printf("Inference failed!\n");
         } else {
-            printf("Detect Result Count: %d\n", detect_result.count);
+            printf("Detect Result Count: %d\n", mgr->detect_result.count);
         }
+        sem_post(&mgr->display_sem);
+    }
+
+    printf("Inference thread exiting\n");
+    return NULL;
+}
+
+void* display_thread_func(void *arg){
+    thread_params_t *params = (thread_params_t*)arg;
+    buffer_manager_t *mgr = params->buffer_mgr;
+    int width = mgr->width;
+    int height = mgr->height;
+    int ret;
+
+        // Initialize DRM
+    My_drm_context_t *drm = init_drm(width, height);
+    if (!drm) {
+        fprintf(stderr, "Failed to initialize DRM, exiting display thread\n");
+        return NULL;
+    }
+
+    // Print buffer dimensions
+    printf("Input buffer: %dx%d, Display buffer: %dx%d\n", 
+        width, height, drm->width, drm->height);
+
+        // Variables for FPS calculation
+    int frame_count = 0;
+    float fps = 0.0f;
+    struct timeval start_time, current_time;
+    gettimeofday(&start_time, NULL);
+
+    while (mgr->running) {
+
+        sem_wait(&mgr->display_sem);
+        
+        if (!mgr->running) break;
+
+        pthread_mutex_lock(&mgr->mutex);
+        int idx = mgr->display_index;
+        mgr->display_index = (mgr->display_index + 1) % mgr->buffer_count;
+        pthread_mutex_unlock(&mgr->mutex);
 
         ret = convert_nv12_to_RGB(mgr->buffers[idx].data, mgr->RGB_buffer, width, height);
         if (ret != IM_STATUS_SUCCESS) {
             printf("Error converting NV12 to RGB: %s\n", imStrError((IM_STATUS)ret));
             continue;
         }
-
+    
         // Calculate FPS
         frame_count++;
         gettimeofday(&current_time, NULL);
@@ -235,44 +258,44 @@ void* process_thread_func(void *arg) {
             frame_count = 0;
             start_time = current_time;
         }
-
+    
         // Create OpenCV Mat for drawing
         cv::Mat rgb_frame(height, width, CV_8UC3, mgr->RGB_buffer);
-
+    
         // Draw FPS
         char fps_text[32];
         snprintf(fps_text, sizeof(fps_text), "FPS: %.1f", fps);
         cv::putText(rgb_frame, fps_text, cv::Point(30, 50), cv::FONT_HERSHEY_SIMPLEX, 
                     1.5, cv::Scalar(0, 255, 0), 2);
-
+    
         // Draw detection boxes
-        for (int i = 0; i < detect_result.count; i++) {
-            detect_result_t* det = &(detect_result.results[i]);
+        for (int i = 0; i < mgr->detect_result.count; i++) {
+            detect_result_t* det = &(mgr->detect_result.results[i]);
             int x1 = det->box.left;
             int y1 = det->box.top;
             int x2 = det->box.right;
             int y2 = det->box.bottom;
-
+    
             // Draw rectangle
             cv::rectangle(rgb_frame, cv::Point(x1, y1), cv::Point(x2, y2), cv::Scalar(255, 0, 0), 3);
-
+    
             // Format text with class name and confidence
             char text[128];
             snprintf(text, sizeof(text), "%s %.2f", det->name, det->prop);
-
+    
             // Draw text
-            cv::putText(rgb_frame, text, cv::Point(x1, y1 - 12), cv::FONT_HERSHEY_SIMPLEX, 1, cv::Scalar(255, 0, 0));
+            cv::putText(rgb_frame, text, cv::Point(x1, y1 - 12), cv::FONT_HERSHEY_SIMPLEX, 1, cv::Scalar(255, 0, 0),2);
             
-            printf("%s @ (%d, %d, %d, %d) %.3f\n", det->name, x1, y1, x2, y2, det->prop);
+            //printf("%s @ (%d, %d, %d, %d) %.3f\n", det->name, x1, y1, x2, y2, det->prop);
         }
-
+    
         // Convert RGB to BGRA
         ret = convert_RGB_to_BGRA_dma_buf(mgr->RGB_buffer, drm, width, height);
         if (ret != IM_STATUS_SUCCESS) {
             printf("Error converting RGB to BGRA: %s\n", imStrError((IM_STATUS)ret));
             continue;
         }
-
+    
         if (drmModePageFlip(drm->fd, drm->crtc_id, drm->fb_id, 
             DRM_MODE_PAGE_FLIP_EVENT, NULL) < 0) {
             perror("Failed to page flip");
@@ -281,22 +304,23 @@ void* process_thread_func(void *arg) {
             drmEventContext evctx = {0};
             evctx.version = DRM_EVENT_CONTEXT_VERSION;
             evctx.page_flip_handler = NULL;
-
+    
             fd_set fds;
             FD_ZERO(&fds);
             FD_SET(drm->fd, &fds);
-
+    
             struct timeval timeout = {0, 100000}; // 100ms timeout
-
+    
             select(drm->fd + 1, &fds, NULL, NULL, &timeout);
             if (FD_ISSET(drm->fd, &fds))
                 drmHandleEvent(drm->fd, &evctx);
         }
-
+    
         sem_post(&mgr->empty_sem);
+        sem_post(&mgr->encode_sem);
     }
 
-    // Cleanup DRM
+        // Cleanup DRM
     if (drm) {
         // Wait for any pending operations to complete
         drmEventContext evctx = {0};
@@ -317,10 +341,9 @@ void* process_thread_func(void *arg) {
         drm = NULL;
     }
 
-    printf("Process thread exiting\n");
+    printf("Display thread exiting\n");
     return NULL;
 }
-
 
 void* encode_thread_func(void *arg) {
     thread_params_t *params = (thread_params_t*)arg;
@@ -363,8 +386,8 @@ void* encode_thread_func(void *arg) {
     // 设置编码参数
     codec_ctx->width = width;
     codec_ctx->height = height;
-    codec_ctx->time_base = (AVRational){1, 10}; // 30fps
-    codec_ctx->framerate = (AVRational){10, 1};
+    codec_ctx->time_base = (AVRational){1, 12}; // 30fps
+    codec_ctx->framerate = (AVRational){12, 1};
     codec_ctx->pix_fmt = AV_PIX_FMT_YUV420P; // 使用YUV420P格式编码
     codec_ctx->bit_rate = 5000000; // 5 Mbps，可以根据网络情况调整
     
@@ -477,8 +500,11 @@ void* encode_thread_func(void *arg) {
             fprintf(stderr, "Could not make frame writable\n");
             continue;
         }
-        
-        // 准备源数据指针
+
+        //RGB转NV12
+        convert_color(mgr->RGB_buffer, mgr->encode_buffer, width, height, RK_FORMAT_RGB_888, RK_FORMAT_YCbCr_420_SP);
+
+                // 准备源数据指针
         const uint8_t *src_data[2] = {
             (uint8_t*)mgr->encode_buffer,                         // Y平面
             (uint8_t*)mgr->encode_buffer + (width * height)       // UV平面
@@ -565,9 +591,10 @@ int main_multithreaded(struct v4l2_dev *camdev, int width, int height) {
     };
     
     // 创建线程
-    pthread_t video_capture_thread, process_thread, encode_thread;
+    pthread_t video_capture_thread, Inference_thread, encode_thread, display_thread;
     pthread_create(&video_capture_thread, NULL, video_capture_thread_func, &params);
-    pthread_create(&process_thread, NULL, process_thread_func, &params);
+    pthread_create(&Inference_thread, NULL, Inference_thread_func, &params);
+    pthread_create(&display_thread, NULL, display_thread_func, &params);
     pthread_create(&encode_thread, NULL, encode_thread_func, &params);
     
     // 等待用户输入来退出
@@ -578,8 +605,11 @@ int main_multithreaded(struct v4l2_dev *camdev, int width, int height) {
     buffer_mgr->running = 0;
     sem_post(&buffer_mgr->filled_sem);
     sem_post(&buffer_mgr->encode_sem);
+    sem_post(&buffer_mgr->display_sem);
+    sem_post(&buffer_mgr->empty_sem);
     pthread_join(video_capture_thread, NULL);
-    pthread_join(process_thread, NULL);
+    pthread_join(Inference_thread, NULL);
+    pthread_join(display_thread, NULL);
     pthread_join(encode_thread, NULL);
     // 清理缓冲区管理器
     destroy_buffer_manager(buffer_mgr);

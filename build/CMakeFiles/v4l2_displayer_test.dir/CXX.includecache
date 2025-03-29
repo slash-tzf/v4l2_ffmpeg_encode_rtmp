@@ -15,6 +15,8 @@ stdlib.h
 -
 stdint.h
 -
+rknn_yolov5.h
+../include/rknn_yolov5.h
 
 ../include/camera.h
 sys/types.h
@@ -167,12 +169,6 @@ libavutil/version.h
 /home/alientek/ffmpeg_armbuild/include/libavcodec/libavutil/version.h
 libavcodec/version_major.h
 /home/alientek/ffmpeg_armbuild/include/libavcodec/libavcodec/version_major.h
-
-/home/alientek/ffmpeg_armbuild/include/libavcodec/version.h
-libavutil/version.h
-/home/alientek/ffmpeg_armbuild/include/libavcodec/libavutil/version.h
-version_major.h
-/home/alientek/ffmpeg_armbuild/include/libavcodec/version_major.h
 
 /home/alientek/ffmpeg_armbuild/include/libavcodec/version_major.h
 
@@ -858,6 +854,8 @@ opencv2/imgproc.hpp
 opencv2/core.hpp
 /home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/opencv4/opencv2/opencv2/core.hpp
 
+/home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/rga/rga.h
+
 /home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/rknn/rknn_api.h
 stdint.h
 -
@@ -885,6 +883,10 @@ rga/im2d.h
 -
 drm_disp.h
 /home/alientek/workspace/v4l2_displayer_test/src/drm_disp.h
+libavutil/pixfmt.h
+/home/alientek/workspace/v4l2_displayer_test/src/libavutil/pixfmt.h
+rga.h
+/home/alientek/workspace/v4l2_displayer_test/src/rga.h
 rknn_yolov5.h
 /home/alientek/workspace/v4l2_displayer_test/src/rknn_yolov5.h
 postprocess.h

@@ -5,6 +5,7 @@
 #include <semaphore.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "rknn_yolov5.h"
 // Forward declaration
 struct v4l2_dev;
 
@@ -31,8 +32,10 @@ typedef struct {
     int buffer_count;
     int capture_index;
     int process_index;
+    int display_index;
     sem_t empty_sem;
     sem_t filled_sem;
+    sem_t display_sem;
     pthread_mutex_t mutex;
     int running;
     int width;
@@ -45,7 +48,7 @@ typedef struct {
     sem_t encode_sem;
     int encode_index;
     char *encode_buffer;
-    
+    detect_result_group_t detect_result;
 } buffer_manager_t;
 
 
@@ -64,7 +67,7 @@ void destroy_buffer_manager(buffer_manager_t *mgr);
 
 // Thread functions
 void* video_capture_thread_func(void *arg);
-void* process_thread_func(void *arg);
+void* Inference_thread_func(void *arg);
 void* encode_thread_func(void *arg);
 void* audio_capture_thread_func(void *arg);
 // Main multithreaded processing function

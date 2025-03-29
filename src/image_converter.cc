@@ -19,7 +19,7 @@ int convert_nv12_to_RGB(char *src_data, char *dst_data, int width, int height) {
   rga_buffer_t src = {0};
   rga_buffer_t dst = {0};
 
-
+  
   src_width = width;
   src_height = height;
   src_format = RK_FORMAT_YCbCr_420_SP;
@@ -76,4 +76,26 @@ int convert_RGB_to_BGRA_dma_buf(char *src_data, My_drm_context_t *drm, int width
 
   return ret;
 
+}
+
+
+int convert_color(char *src_data, char *dst_data, int width, int height , int src_format, int dst_format) {
+
+  int ret = 0;
+
+  rga_buffer_t src = {0};
+  rga_buffer_t dst = {0};
+
+
+  src = wrapbuffer_virtualaddr(src_data, width, height, src_format);
+  dst = wrapbuffer_virtualaddr(dst_data, width, height, dst_format);
+
+  ret = imcvtcolor(src, dst, src_format, dst_format);
+  if (ret == IM_STATUS_SUCCESS) {
+    // printf("imrotate running success!\n");
+  } else {
+    printf("imcvtcolor running failed, %s\n", imStrError((IM_STATUS)ret));
+  }
+
+  return ret;
 }

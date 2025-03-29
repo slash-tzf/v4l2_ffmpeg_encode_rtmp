@@ -175,6 +175,9 @@ int RknnYolov5::PreProcess(unsigned char* input_data, int img_width, int img_hei
 }
 
 int RknnYolov5::Inference(unsigned char* input_data, int img_width, int img_height, detect_result_group_t* detect_result) {
+
+    struct timeval start_time, end_time;
+    gettimeofday(&start_time, NULL);
     int ret = PreProcess(input_data, img_width, img_height);
     if (ret < 0) {
         return -1;
@@ -186,8 +189,7 @@ int RknnYolov5::Inference(unsigned char* input_data, int img_width, int img_heig
         return -1;
     }
     
-    struct timeval start_time, end_time;
-    gettimeofday(&start_time, NULL);
+
     
     ret = rknn_run(ctx, NULL);
     if (ret < 0) {

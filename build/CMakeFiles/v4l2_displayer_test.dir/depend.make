@@ -14,7 +14,6 @@ CMakeFiles/v4l2_displayer_test.dir/src/buffer_manager.cc.o: /home/alientek/ffmpe
 CMakeFiles/v4l2_displayer_test.dir/src/buffer_manager.cc.o: /home/alientek/ffmpeg_armbuild/include/libavcodec/codec_par.h
 CMakeFiles/v4l2_displayer_test.dir/src/buffer_manager.cc.o: /home/alientek/ffmpeg_armbuild/include/libavcodec/defs.h
 CMakeFiles/v4l2_displayer_test.dir/src/buffer_manager.cc.o: /home/alientek/ffmpeg_armbuild/include/libavcodec/packet.h
-CMakeFiles/v4l2_displayer_test.dir/src/buffer_manager.cc.o: /home/alientek/ffmpeg_armbuild/include/libavcodec/version.h
 CMakeFiles/v4l2_displayer_test.dir/src/buffer_manager.cc.o: /home/alientek/ffmpeg_armbuild/include/libavcodec/version_major.h
 CMakeFiles/v4l2_displayer_test.dir/src/buffer_manager.cc.o: /home/alientek/ffmpeg_armbuild/include/libavformat/avformat.h
 CMakeFiles/v4l2_displayer_test.dir/src/buffer_manager.cc.o: /home/alientek/ffmpeg_armbuild/include/libavformat/avio.h
@@ -88,6 +87,7 @@ CMakeFiles/v4l2_displayer_test.dir/src/buffer_manager.cc.o: /home/alientek/rk356
 CMakeFiles/v4l2_displayer_test.dir/src/buffer_manager.cc.o: /home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/opencv4/opencv2/imgproc/segmentation.hpp
 CMakeFiles/v4l2_displayer_test.dir/src/buffer_manager.cc.o: /home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/opencv4/opencv2/opencv_modules.hpp
 CMakeFiles/v4l2_displayer_test.dir/src/buffer_manager.cc.o: /home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/opencv4/opencv2/videoio.hpp
+CMakeFiles/v4l2_displayer_test.dir/src/buffer_manager.cc.o: /home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/rga/rga.h
 CMakeFiles/v4l2_displayer_test.dir/src/buffer_manager.cc.o: /home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/rknn/rknn_api.h
 CMakeFiles/v4l2_displayer_test.dir/src/buffer_manager.cc.o: ../src/buffer_manager.cc
 
@@ -112,6 +112,9 @@ CMakeFiles/v4l2_displayer_test.dir/src/image_converter.cc.o: ../src/image_conver
 
 CMakeFiles/v4l2_displayer_test.dir/src/main.cc.o: ../include/buffer_manager.h
 CMakeFiles/v4l2_displayer_test.dir/src/main.cc.o: ../include/camera.h
+CMakeFiles/v4l2_displayer_test.dir/src/main.cc.o: ../include/postprocess.h
+CMakeFiles/v4l2_displayer_test.dir/src/main.cc.o: ../include/rknn_yolov5.h
+CMakeFiles/v4l2_displayer_test.dir/src/main.cc.o: /home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/rknn/rknn_api.h
 CMakeFiles/v4l2_displayer_test.dir/src/main.cc.o: ../src/main.cc
 
 CMakeFiles/v4l2_displayer_test.dir/src/postprocess.cc.o: ../include/postprocess.h
