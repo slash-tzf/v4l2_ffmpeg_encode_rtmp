@@ -184,11 +184,11 @@ v4l2_displayer_test_EXTERNAL_OBJECTS =
 ../bin/v4l2_displayer_test: CMakeFiles/v4l2_displayer_test.dir/src/postprocess.cc.o
 ../bin/v4l2_displayer_test: CMakeFiles/v4l2_displayer_test.dir/src/rknn_yolov5.cc.o
 ../bin/v4l2_displayer_test: CMakeFiles/v4l2_displayer_test.dir/build.make
-../bin/v4l2_displayer_test: /home/alientek/ffmpeg_armbuild/lib/libavcodec.so
-../bin/v4l2_displayer_test: /home/alientek/ffmpeg_armbuild/lib/libavformat.so
-../bin/v4l2_displayer_test: /home/alientek/ffmpeg_armbuild/lib/libavutil.so
-../bin/v4l2_displayer_test: /home/alientek/ffmpeg_armbuild/lib/libswscale.so
-../bin/v4l2_displayer_test: /home/alientek/ffmpeg_armbuild/lib/libswresample.so
+../bin/v4l2_displayer_test: ../lib/ffmpeg/lib/libavcodec.so
+../bin/v4l2_displayer_test: ../lib/ffmpeg/lib/libavformat.so
+../bin/v4l2_displayer_test: ../lib/ffmpeg/lib/libavutil.so
+../bin/v4l2_displayer_test: ../lib/ffmpeg/lib/libswscale.so
+../bin/v4l2_displayer_test: ../lib/ffmpeg/lib/libswresample.so
 ../bin/v4l2_displayer_test: CMakeFiles/v4l2_displayer_test.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/alientek/workspace/v4l2_displayer_test/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Linking CXX executable ../bin/v4l2_displayer_test"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/v4l2_displayer_test.dir/link.txt --verbose=$(VERBOSE)

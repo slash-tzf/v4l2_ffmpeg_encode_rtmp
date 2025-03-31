@@ -413,7 +413,8 @@ void* encode_thread_func(void *arg) {
         avformat_free_context(out_ctx);
         return NULL;
     }
-    
+    out_ctx->flags |= AVFMT_FLAG_NOBUFFER; 
+    out_ctx->flags |= AVFMT_FLAG_FLUSH_PACKETS;
     stream->id = out_ctx->nb_streams - 1;
     avcodec_parameters_from_context(stream->codecpar, codec_ctx);
     
@@ -540,7 +541,7 @@ void* encode_thread_func(void *arg) {
             pkt->stream_index = stream->index;
             
             // 写入数据包到RTMP流
-            ret = av_interleaved_write_frame(out_ctx, pkt);
+            ret = av_write_frame(out_ctx, pkt);
             if (ret < 0) {
                 fprintf(stderr, "Error writing packet\n");
                 break;

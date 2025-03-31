@@ -1,0 +1,14 @@
+prefix=/home/alientek/ffmpeg_armbuild
+exec_prefix=${prefix}
+libdir=/home/alientek/ffmpeg_armbuild/lib
+includedir=/home/alientek/ffmpeg_armbuild/include
+
+Name: libavcodec
+Description: FFmpeg codec library
+Version: 60.31.102
+Requires: 
+Requires.private: libswresample >= 4.12.100, libavutil >= 58.29.100
+Conflicts:
+Libs: -L${libdir}  -lavcodec 
+Libs.private: -L/home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk3568/host/bin/../aarch64-buildroot-linux-gnu/sysroot/usr/lib -lvpx -lm -L/home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk3568/host/bin/../aarch64-buildroot-linux-gnu/sysroot/usr/lib -lvpx -lm -L/home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk3568/host/bin/../aarch64-buildroot-linux-gnu/sysroot/usr/lib -lvpx -lm -L/home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk3568/host/bin/../aarch64-buildroot-linux-gnu/sysroot/usr/lib -lvpx -lm -pthread -lm -latomic -L/home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk3568/host/bin/../aarch64-buildroot-linux-gnu/sysroot/usr/lib -lrga -llzma -lmp3lame -lm -L/home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk3568/host/bin/../aarch64-buildroot-linux-gnu/sysroot/usr/lib -lopus -L/home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk3568/host/bin/../aarch64-buildroot-linux-gnu/sysroot/usr/lib -lspeex -ltheoraenc -ltheoradec -logg -L/home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk3568/host/bin/../aarch64-buildroot-linux-gnu/sysroot/usr/lib -lvorbis -L/home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk3568/host/bin/../aarch64-buildroot-linux-gnu/sysroot/usr/lib -lvorbisenc -L/home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk3568/host/bin/../aarch64-buildroot-linux-gnu/sysroot/usr/lib -lx264 -L/home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk3568/host/bin/../aarch64-buildroot-linux-gnu/sysroot/usr/lib -lx265 -L/home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk3568/host/bin/../aarch64-buildroot-linux-gnu/sysroot/usr/lib -lrockchip_mpp -L/home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk3568/host/bin/../aarch64-buildroot-linux-gnu/sysroot/usr/lib -lz
+Cflags: -I${includedir}

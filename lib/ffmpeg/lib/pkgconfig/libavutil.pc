@@ -1,0 +1,14 @@
+prefix=/home/alientek/ffmpeg_armbuild
+exec_prefix=${prefix}
+libdir=/home/alientek/ffmpeg_armbuild/lib
+includedir=/home/alientek/ffmpeg_armbuild/include
+
+Name: libavutil
+Description: FFmpeg utility library
+Version: 58.29.100
+Requires: 
+Requires.private: 
+Conflicts:
+Libs: -L${libdir}  -lavutil 
+Libs.private: -pthread -lm -L/home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk3568/host/bin/../aarch64-buildroot-linux-gnu/sysroot/usr/lib -ldrm -L/home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk3568/host/bin/../aarch64-buildroot-linux-gnu/sysroot/usr/lib -lrockchip_mpp -latomic
+Cflags: -I${includedir}

@@ -15,8 +15,6 @@ My_drm_context_t* init_drm(int width, int height) {
         return NULL;
     }
     
-    // Store the desired dimensions for landscape mode
-    // We're swapping width and height for landscape mode
     drm->width = width;  // Original height becomes width in landscape
     drm->height = height;  // Original width becomes height in landscape
     

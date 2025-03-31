@@ -1,0 +1,14 @@
+prefix=/home/alientek/ffmpeg_armbuild
+exec_prefix=${prefix}
+libdir=/home/alientek/ffmpeg_armbuild/lib
+includedir=/home/alientek/ffmpeg_armbuild/include
+
+Name: libavformat
+Description: FFmpeg container format library
+Version: 60.16.100
+Requires: 
+Requires.private: libavcodec >= 60.31.102, libswresample >= 4.12.100, libavutil >= 58.29.100
+Conflicts:
+Libs: -L${libdir}  -lavformat 
+Libs.private: -lm -latomic -lbz2 -L/home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk3568/host/bin/../aarch64-buildroot-linux-gnu/sysroot/usr/lib -lz -L/home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk3568/host/bin/../aarch64-buildroot-linux-gnu/sysroot/usr/lib -lgnutls -L/home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk3568/host/bin/../aarch64-buildroot-linux-gnu/sysroot/usr/lib -lrtmp -lz -lgmp -lgnutls -lhogweed -lnettle
+Cflags: -I${includedir}

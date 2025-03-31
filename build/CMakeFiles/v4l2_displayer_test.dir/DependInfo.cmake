@@ -22,7 +22,7 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "/home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/rga"
   "/home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/rknn"
   "/home/alientek/rk3568_linux_sdk/buildroot/output/rockchip_atk_dlrk3568/host/aarch64-buildroot-linux-gnu/sysroot/usr/include/opencv4"
-  "/home/alientek/ffmpeg_armbuild/include"
+  "../lib/ffmpeg/include"
   )
 
 # Targets to which this target links.
